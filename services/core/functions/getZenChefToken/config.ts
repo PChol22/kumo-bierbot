@@ -6,30 +6,37 @@ import { Construct } from 'constructs';
 
 import { sharedCdkEsbuildConfig } from '@bierbot/serverless-configuration';
 
-import { healthContract } from 'contracts/healthContract';
+import { getZenChefTokenContract } from 'contracts/getZenChefTokenContract';
 
-type HealthProps = { restApi: RestApi };
+type GetZenChefTokenProps = { restApi: RestApi; restaurantId: string };
 
-export class Health extends Construct {
-  public healthFunction: NodejsFunction;
+export class GetZenChefToken extends Construct {
+  public function: NodejsFunction;
 
-  constructor(scope: Construct, id: string, { restApi }: HealthProps) {
+  constructor(
+    scope: Construct,
+    id: string,
+    { restApi, restaurantId }: GetZenChefTokenProps,
+  ) {
     super(scope, id);
 
-    this.healthFunction = new NodejsFunction(this, 'Lambda', {
+    this.function = new NodejsFunction(this, 'Lambda', {
       entry: getCdkHandlerPath(__dirname),
       handler: 'main',
       runtime: Runtime.NODEJS_16_X,
       architecture: Architecture.ARM_64,
       awsSdkConnectionReuse: true,
       bundling: sharedCdkEsbuildConfig,
+      environment: {
+        RESTAURANT_ID: restaurantId,
+      },
     });
 
     restApi.root
-      .resourceForPath(healthContract.path)
+      .resourceForPath(getZenChefTokenContract.path)
       .addMethod(
-        healthContract.method,
-        new LambdaIntegration(this.healthFunction),
+        getZenChefTokenContract.method,
+        new LambdaIntegration(this.function),
       );
   }
 }

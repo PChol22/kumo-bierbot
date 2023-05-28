@@ -18,7 +18,14 @@ const stage =
 
 loadEnv(stage);
 
+const restaurantId = process.env.RESTAURANT_ID;
+
+if (restaurantId === undefined) {
+  throw new Error('Missing restaurant id');
+}
+
 new CoreStack(app, `${projectName}-core-${stage}`, {
   stage,
   env: { region },
+  restaurantId,
 });

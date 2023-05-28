@@ -1,1 +1,1 @@
-export { Health } from './health/config';
+export { GetZenChefToken } from './getZenChefToken/config';
