@@ -6,17 +6,17 @@ import { Construct } from 'constructs';
 
 import { sharedCdkEsbuildConfig } from '@bierbot/serverless-configuration';
 
-import { getZenChefTokenContract } from 'contracts';
+import { slackEventContract } from 'contracts';
 
-type GetZenChefTokenProps = { restApi: RestApi; restaurantId: string };
+type SlackEventProps = { restApi: RestApi; slackSigningSecret: string };
 
-export class GetZenChefToken extends Construct {
+export class SlackEvent extends Construct {
   public function: NodejsFunction;
 
   constructor(
     scope: Construct,
     id: string,
-    { restApi, restaurantId }: GetZenChefTokenProps,
+    { restApi, slackSigningSecret }: SlackEventProps,
   ) {
     super(scope, id);
 
@@ -28,14 +28,14 @@ export class GetZenChefToken extends Construct {
       awsSdkConnectionReuse: true,
       bundling: sharedCdkEsbuildConfig,
       environment: {
-        RESTAURANT_ID: restaurantId,
+        SLACK_SIGNING_SECRET: slackSigningSecret,
       },
     });
 
     restApi.root
-      .resourceForPath(getZenChefTokenContract.path)
+      .resourceForPath(slackEventContract.path)
       .addMethod(
-        getZenChefTokenContract.method,
+        slackEventContract.method,
         new LambdaIntegration(this.function),
       );
   }

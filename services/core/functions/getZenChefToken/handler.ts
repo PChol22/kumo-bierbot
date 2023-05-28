@@ -1,7 +1,7 @@
 import { getHandler, HttpStatusCodes } from '@swarmion/serverless-contracts';
 import Ajv from 'ajv';
 
-import { getZenChefTokenContract } from 'contracts/getZenChefTokenContract';
+import { getZenChefTokenContract } from 'contracts';
 import { getZenChefToken } from 'libs/zenchef';
 
 const ajv = new Ajv();
