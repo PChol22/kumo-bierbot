@@ -2,7 +2,11 @@ import { getHandler } from '@swarmion/serverless-contracts';
 import Ajv from 'ajv';
 
 import { newPollContract } from 'contracts';
-import { applySlashCommandMiddleware, postMessage } from 'libs/slack';
+import {
+  applySlashCommandMiddleware,
+  deleteMessage,
+  postMessage,
+} from 'libs/slack';
 import {
   BOOKING_PK,
   BookingEntity,
@@ -46,11 +50,14 @@ const handler = getHandler(newPollContract, { ajv })(async () => {
       status: BookingStatus.PENDING,
       channel,
     }),
+    ...onGoingBookings.map(({ messageId: mId, channel: messageChannel }) =>
+      deleteMessage({ channel: messageChannel, messageId: mId }),
+    ),
   ]);
 
   return {
     statusCode: 200,
-    body: 'Letsgooo!',
+    body: undefined,
   };
 });
 

@@ -16,6 +16,6 @@ export const newPollContract = new ApiGatewayContract({
     type: 'object',
   },
   outputSchemas: {
-    [HttpStatusCodes.OK]: { type: 'string' } as const,
+    [HttpStatusCodes.OK]: {} as const,
   },
 });
