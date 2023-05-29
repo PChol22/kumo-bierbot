@@ -54,6 +54,8 @@ export class CoreStack extends Stack {
     new SlackEvent(this, 'SlackEvent', {
       restApi: coreApi,
       slackSigningSecret,
+      slackToken,
+      table,
     });
 
     new NewPoll(this, 'NewPoll', {

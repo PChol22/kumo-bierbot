@@ -28,13 +28,6 @@ const signingSecretMiddleware: () => MiddlewareObj<
       throw new Error('Missing environment variables');
     }
 
-    console.log({
-      timestamp: handler.event.headers['X-Slack-Request-Timestamp'],
-      signature: handler.event.headers['X-Slack-Signature'],
-      body: handler.event.body,
-      slackSigningSecret,
-    });
-
     const signature = checkSignature(
       handler.event.headers['X-Slack-Signature'],
       handler.event.headers['X-Slack-Request-Timestamp'],

@@ -16,8 +16,23 @@ export const slackEventContract = new ApiGatewayContract({
     type: 'object',
     properties: {
       challenge: { type: 'string' },
+      event: {
+        type: 'object',
+        properties: {
+          type: { enum: ['reaction_added', 'reaction_removed'] },
+          item: {
+            type: 'object',
+            properties: {
+              ts: { type: 'string' },
+            },
+            required: ['ts'],
+          },
+          reaction: { type: 'string' },
+          user: { type: 'string' },
+        },
+        required: ['type', 'item', 'reaction', 'user'],
+      },
     },
-    required: ['challenge'],
   } as const,
   outputSchemas: {
     [HttpStatusCodes.OK]: { type: 'string' } as const,

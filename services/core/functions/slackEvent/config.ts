@@ -1,5 +1,6 @@
 import { getCdkHandlerPath } from '@swarmion/serverless-helpers';
 import { LambdaIntegration, RestApi } from 'aws-cdk-lib/aws-apigateway';
+import { Table } from 'aws-cdk-lib/aws-dynamodb';
 import { Architecture, Runtime } from 'aws-cdk-lib/aws-lambda';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Construct } from 'constructs';
@@ -8,7 +9,12 @@ import { sharedCdkEsbuildConfig } from '@bierbot/serverless-configuration';
 
 import { slackEventContract } from 'contracts';
 
-type SlackEventProps = { restApi: RestApi; slackSigningSecret: string };
+type SlackEventProps = {
+  restApi: RestApi;
+  slackSigningSecret: string;
+  slackToken: string;
+  table: Table;
+};
 
 export class SlackEvent extends Construct {
   public function: NodejsFunction;
@@ -16,7 +22,7 @@ export class SlackEvent extends Construct {
   constructor(
     scope: Construct,
     id: string,
-    { restApi, slackSigningSecret }: SlackEventProps,
+    { restApi, slackSigningSecret, table, slackToken }: SlackEventProps,
   ) {
     super(scope, id);
 
@@ -29,8 +35,12 @@ export class SlackEvent extends Construct {
       bundling: sharedCdkEsbuildConfig,
       environment: {
         SLACK_SIGNING_SECRET: slackSigningSecret,
+        TABLE_NAME: table.tableName,
+        SLACK_TOKEN: slackToken,
       },
     });
+
+    table.grantReadWriteData(this.function);
 
     restApi.root
       .resourceForPath(slackEventContract.path)

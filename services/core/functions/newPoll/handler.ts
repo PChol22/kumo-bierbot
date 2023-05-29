@@ -29,7 +29,7 @@ const handler = getHandler(newPollContract, { ajv })(async () => {
       ],
     });
 
-  const { messageId } = await postMessage({
+  const { messageId, channel } = await postMessage({
     channelName,
     message: 'Hello world!',
   });
@@ -44,6 +44,7 @@ const handler = getHandler(newPollContract, { ajv })(async () => {
     BookingEntity.put({
       messageId,
       status: BookingStatus.PENDING,
+      channel,
     }),
   ]);
 

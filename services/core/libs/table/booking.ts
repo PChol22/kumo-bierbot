@@ -4,8 +4,8 @@ import { PK, SK } from 'libs/constants';
 
 import { coreTable } from './table';
 
-export const ENTITY_NAME = 'Booking';
-export const BOOKING_PK = ENTITY_NAME;
+export const BOOKING_ENTITY_NAME = 'Booking';
+export const BOOKING_PK = BOOKING_ENTITY_NAME;
 
 export const BookingStatus = {
   PENDING: 'PENDING',
@@ -16,16 +16,23 @@ export const BookingStatus = {
 export type BookingStatus = (typeof BookingStatus)[keyof typeof BookingStatus];
 
 export const BookingEntity = new Entity({
-  name: ENTITY_NAME,
+  name: BOOKING_ENTITY_NAME,
   attributes: {
-    [PK]: { partitionKey: true, type: 'string', default: BOOKING_PK },
+    [PK]: {
+      partitionKey: true,
+      type: 'string',
+      default: BOOKING_PK,
+      hidden: true,
+    },
     [SK]: {
       sortKey: true,
       type: 'string',
       default: ({ messageId }: { messageId: string }) => messageId,
+      hidden: true,
     },
     status: { type: 'string', required: true },
     messageId: { type: 'string', required: true },
+    channel: { type: 'string', required: true },
   },
   table: coreTable,
 });
