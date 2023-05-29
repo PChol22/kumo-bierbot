@@ -1,3 +1,5 @@
+import { MIN_CAPACITY } from './constants';
+
 export const formatPollMessage = ({
   guests,
   scheduleTime,
@@ -6,7 +8,7 @@ export const formatPollMessage = ({
   scheduleTime: string;
 }): string => {
   const header = "*Réservation pour le Biergit aujourd'hui à 18h30 !*";
-  const footer = `_La réservation sera envoyée à ${scheduleTime}_
+  const footer = `_Si ${MIN_CAPACITY} personnes acceptent, la réservation partira à ${scheduleTime}_
   
 Ajoute un react 🍻 pour t'inscrire !`;
 

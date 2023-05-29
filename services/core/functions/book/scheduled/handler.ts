@@ -1,3 +1,3 @@
 import { sharedHandler } from '../handler';
 
-export const main = sharedHandler;
+export const main = sharedHandler(true);

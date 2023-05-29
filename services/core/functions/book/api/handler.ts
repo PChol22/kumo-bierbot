@@ -8,6 +8,6 @@ import { sharedHandler } from '../handler';
 
 const ajv = new Ajv();
 
-const handler = getHandler(bookContract, { ajv })(sharedHandler);
+const handler = getHandler(bookContract, { ajv })(sharedHandler(false));
 
 export const main = applySlashCommandMiddleware(handler);
