@@ -26,6 +26,8 @@
   },
   "dependencies": {
     "@bierbot/serverless-configuration": "workspace:^",
+    "@middy/core": "^4.4.3",
+    "@middy/http-urlencode-body-parser": "^4.4.3",
     "@slack/web-api": "^6.8.1",
     "@swarmion/serverless-contracts": "^0.28.2",
     "@swarmion/serverless-helpers": "^0.28.2",

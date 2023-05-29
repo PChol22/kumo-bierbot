@@ -2,33 +2,16 @@ import { getHandler } from '@swarmion/serverless-contracts';
 import Ajv from 'ajv';
 
 import { slackEventContract } from 'contracts';
-import { checkSignature } from 'libs/slack';
+import { applySlackEventMiddleware } from 'libs/slack';
 
 const ajv = new Ajv();
 
-export const main = getHandler(slackEventContract, { ajv })(
-  async ({ body, headers }) => {
-    const slackSigningSecret = process.env.SLACK_SIGNING_SECRET;
+const handler = getHandler(slackEventContract, { ajv })(async ({ body }) => {
+  console.log({ body });
 
-    if (slackSigningSecret === undefined) {
-      throw new Error('Missing slack signing secret');
-    }
+  const { challenge } = body;
 
-    console.log({ body, headers });
+  return Promise.resolve({ statusCode: 200, body: challenge });
+});
 
-    const signature = checkSignature(
-      headers['X-Slack-Request-Timestamp'],
-      headers['X-Slack-Signature'],
-      body,
-      slackSigningSecret,
-    );
-
-    if (!signature) {
-      throw new Error('Invalid signature');
-    }
-
-    const { challenge } = body;
-
-    return Promise.resolve({ statusCode: 200, body: challenge });
-  },
-);
+export const main = applySlackEventMiddleware(handler);

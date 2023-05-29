@@ -6,19 +6,15 @@ import {
 import { slackHeaders } from './slackHeaders';
 
 // move this contract to a shared library once you need to use it outside this service
-export const slackEventContract = new ApiGatewayContract({
-  id: 'core-slack-event',
-  path: '/slack-event',
+export const newPollContract = new ApiGatewayContract({
+  id: 'core-new-poll',
+  path: '/new-poll',
   method: 'POST',
   integrationType: 'restApi',
   headersSchema: slackHeaders,
   bodySchema: {
     type: 'object',
-    properties: {
-      challenge: { type: 'string' },
-    },
-    required: ['challenge'],
-  } as const,
+  },
   outputSchemas: {
     [HttpStatusCodes.OK]: { type: 'string' } as const,
   },

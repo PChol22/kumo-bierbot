@@ -3,13 +3,11 @@ import { createHmac } from 'crypto';
 export const checkSignature = (
   inSignature: string,
   ts: string,
-  body: unknown,
+  body: string,
   secret: string,
 ): boolean => {
-  const rawBody = JSON.stringify(body);
-
   const signature = createHmac('SHA256', secret)
-    .update(`v0:${ts}:${rawBody}`)
+    .update(`v0:${ts}:${body}`)
     .digest('hex');
 
   return inSignature === `v0=${signature}`;
