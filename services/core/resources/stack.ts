@@ -1,8 +1,10 @@
 import { Stack, StackProps } from 'aws-cdk-lib';
 import { RestApi } from 'aws-cdk-lib/aws-apigateway';
+import { AttributeType, BillingMode, Table } from 'aws-cdk-lib/aws-dynamodb';
 import { Construct } from 'constructs';
 
 import { GetZenChefToken, NewPoll, SlackEvent } from 'functions/config';
+import { PK, SK } from 'libs/constants';
 
 interface CoreProps {
   stage: string;
@@ -32,6 +34,18 @@ export class CoreStack extends Stack {
       },
     });
 
+    const table = new Table(this, 'Bookings', {
+      partitionKey: {
+        name: PK,
+        type: AttributeType.STRING,
+      },
+      sortKey: {
+        name: SK,
+        type: AttributeType.STRING,
+      },
+      billingMode: BillingMode.PAY_PER_REQUEST,
+    });
+
     new GetZenChefToken(this, 'GetZenChefToken', {
       restApi: coreApi,
       restaurantId,
@@ -47,6 +61,7 @@ export class CoreStack extends Stack {
       slackSigningSecret,
       slackChannelName,
       slackToken,
+      table,
     });
   }
 }

@@ -25,6 +25,8 @@
     "test-unit": "vitest run --coverage --passWithNoTests"
   },
   "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.341.0",
+    "@aws-sdk/lib-dynamodb": "^3.341.0",
     "@bierbot/serverless-configuration": "workspace:^",
     "@middy/core": "^4.4.3",
     "@middy/http-urlencode-body-parser": "^4.4.3",
@@ -32,6 +34,7 @@
     "@swarmion/serverless-contracts": "^0.28.2",
     "@swarmion/serverless-helpers": "^0.28.2",
     "ajv": "^8.12.0",
+    "dynamodb-toolbox": "^0.8.5",
     "node-fetch": "^3.3.1"
   },
   "devDependencies": {

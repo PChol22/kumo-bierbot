@@ -3,19 +3,49 @@ import Ajv from 'ajv';
 
 import { newPollContract } from 'contracts';
 import { applySlashCommandMiddleware, postMessage } from 'libs/slack';
+import {
+  BOOKING_PK,
+  BookingEntity,
+  BookingEntityType,
+  BookingStatus,
+} from 'libs/table';
 
 const ajv = new Ajv();
 
-const handler = getHandler(newPollContract, { ajv })(async ({ body }) => {
+const handler = getHandler(newPollContract, { ajv })(async () => {
   const channelName = process.env.SLACK_CHANNEL_NAME;
 
   if (channelName === undefined) {
     throw new Error('Missing environment variables');
   }
 
-  console.log({ body });
+  const { Items: onGoingBookings = [] } =
+    await BookingEntity.query<BookingEntityType>(BOOKING_PK, {
+      filters: [
+        {
+          attr: 'status',
+          eq: BookingStatus.PENDING,
+        },
+      ],
+    });
 
-  await postMessage({ channelName, message: 'Hello world!' });
+  const { messageId } = await postMessage({
+    channelName,
+    message: 'Hello world!',
+  });
+
+  await Promise.all([
+    ...onGoingBookings.map(({ messageId: mId }) =>
+      BookingEntity.update({
+        messageId: mId,
+        status: BookingStatus.CANCELLED,
+      }),
+    ),
+    BookingEntity.put({
+      messageId,
+      status: BookingStatus.PENDING,
+    }),
+  ]);
 
   return {
     statusCode: 200,

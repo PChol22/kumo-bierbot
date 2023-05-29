@@ -7,20 +7,15 @@ export const postMessage = async ({
   channelName: string;
   message: string;
 }): Promise<{
-  messageId: string | null;
-  channel: string | null;
+  messageId: string;
 }> => {
   const response = await webClient.chat.postMessage({
     channel: `#${channelName}`,
     text: message,
   });
-  if (!response.ok) {
-    console.error(response.error);
-
-    return { messageId: null, channel: null };
+  if (!response.ok || response.message?.ts === undefined) {
+    throw new Error(response.error);
   }
-  const currentMessageId = response.message?.ts ?? null;
-  const currentChannelId = response.channel ?? null;
 
-  return { messageId: currentMessageId, channel: currentChannelId };
+  return { messageId: response.message.ts };
 };

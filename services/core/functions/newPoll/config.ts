@@ -1,5 +1,6 @@
 import { getCdkHandlerPath } from '@swarmion/serverless-helpers';
 import { LambdaIntegration, RestApi } from 'aws-cdk-lib/aws-apigateway';
+import { Table } from 'aws-cdk-lib/aws-dynamodb';
 import { Architecture, Runtime } from 'aws-cdk-lib/aws-lambda';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Construct } from 'constructs';
@@ -13,6 +14,7 @@ type NewPollProps = {
   slackSigningSecret: string;
   slackToken: string;
   slackChannelName: string;
+  table: Table;
 };
 
 export class NewPoll extends Construct {
@@ -21,7 +23,13 @@ export class NewPoll extends Construct {
   constructor(
     scope: Construct,
     id: string,
-    { restApi, slackSigningSecret, slackToken, slackChannelName }: NewPollProps,
+    {
+      restApi,
+      slackSigningSecret,
+      slackToken,
+      slackChannelName,
+      table,
+    }: NewPollProps,
   ) {
     super(scope, id);
 
@@ -36,8 +44,11 @@ export class NewPoll extends Construct {
         SLACK_SIGNING_SECRET: slackSigningSecret,
         SLACK_TOKEN: slackToken,
         SLACK_CHANNEL_NAME: slackChannelName,
+        TABLE_NAME: table.tableName,
       },
     });
+
+    table.grantReadWriteData(this.function);
 
     restApi.root
       .resourceForPath(newPollContract.path)
