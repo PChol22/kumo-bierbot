@@ -1,9 +1,5 @@
-import { getHandler } from '@swarmion/serverless-contracts';
-import Ajv from 'ajv';
-
-import { bookContract } from 'contracts';
 import { formatBookingMessage, formatNoSlotMessage } from 'libs/formatMessage';
-import { applySlashCommandMiddleware, updateMessage } from 'libs/slack';
+import { updateMessage } from 'libs/slack';
 import {
   BOOKING_PK,
   BookingEntity,
@@ -19,9 +15,10 @@ import { loadBookingUser } from './loadBookingUser';
 
 const DESIRED_SLOTS = ['18:30', '19:00', '18:00'];
 
-const ajv = new Ajv();
-
-const handler = getHandler(bookContract, { ajv })(async () => {
+export const sharedHandler = async (): Promise<{
+  statusCode: number;
+  body: unknown;
+}> => {
   const restaurantId = process.env.RESTAURANT_ID;
 
   if (restaurantId === undefined) {
@@ -117,6 +114,4 @@ const handler = getHandler(bookContract, { ajv })(async () => {
     statusCode: 200,
     body: undefined,
   };
-});
-
-export const main = applySlashCommandMiddleware(handler);
+};

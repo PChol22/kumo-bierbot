@@ -1,6 +1,14 @@
-export const formatPollMessage = ({ guests }: { guests: string[] }): string => {
+export const formatPollMessage = ({
+  guests,
+  scheduleTime,
+}: {
+  guests: string[];
+  scheduleTime: string;
+}): string => {
   const header = "*Réservation pour le Biergit aujourd'hui à 18h30 !*";
-  const footer = "Ajoute un react 🍻 pour t'inscrire !";
+  const footer = `_La réservation sera envoyée à ${scheduleTime}_
+  
+Ajoute un react 🍻 pour t'inscrire !`;
 
   if (guests.length === 0) {
     return `${header}

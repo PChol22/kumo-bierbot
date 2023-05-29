@@ -1,3 +1,4 @@
 export { SlackEvent } from './slackEvent/config';
 export { NewPoll } from './newPoll/config';
-export { Book } from './book/config';
+export { ApiBook } from './book/api/config';
+export { ScheduledBook } from './book/scheduled/config';

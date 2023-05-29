@@ -1,6 +1,5 @@
 import { getCdkHandlerPath } from '@swarmion/serverless-helpers';
 import { Duration } from 'aws-cdk-lib';
-import { LambdaIntegration, RestApi } from 'aws-cdk-lib/aws-apigateway';
 import { Table } from 'aws-cdk-lib/aws-dynamodb';
 import { Architecture, Runtime } from 'aws-cdk-lib/aws-lambda';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
@@ -8,11 +7,7 @@ import { Construct } from 'constructs';
 
 import { sharedCdkEsbuildConfig } from '@bierbot/serverless-configuration';
 
-import { bookContract } from 'contracts';
-
-type BookProps = {
-  restApi: RestApi;
-  slackSigningSecret: string;
+type ScheduledBookProps = {
   slackToken: string;
   table: Table;
   restaurantId: string;
@@ -22,15 +17,13 @@ type BookProps = {
   bookingUserEmail: string;
 };
 
-export class Book extends Construct {
+export class ScheduledBook extends Construct {
   public function: NodejsFunction;
 
   constructor(
     scope: Construct,
     id: string,
     {
-      restApi,
-      slackSigningSecret,
       slackToken,
       table,
       restaurantId,
@@ -38,7 +31,7 @@ export class Book extends Construct {
       bookingUserLastName,
       bookingUserPhoneNumber,
       bookingUserEmail,
-    }: BookProps,
+    }: ScheduledBookProps,
   ) {
     super(scope, id);
 
@@ -50,7 +43,6 @@ export class Book extends Construct {
       awsSdkConnectionReuse: true,
       bundling: sharedCdkEsbuildConfig,
       environment: {
-        SLACK_SIGNING_SECRET: slackSigningSecret,
         SLACK_TOKEN: slackToken,
         TABLE_NAME: table.tableName,
         RESTAURANT_ID: restaurantId,
@@ -63,9 +55,5 @@ export class Book extends Construct {
     });
 
     table.grantReadWriteData(this.function);
-
-    restApi.root
-      .resourceForPath(bookContract.path)
-      .addMethod(bookContract.method, new LambdaIntegration(this.function));
   }
 }

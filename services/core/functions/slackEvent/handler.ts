@@ -88,6 +88,7 @@ const handler = getHandler(slackEventContract, { ajv })(async ({ body }) => {
     channel: matchingBooking.channel,
     message: formatPollMessage({
       guests: acceptedUsersInfo.map(({ name }) => name),
+      scheduleTime: matchingBooking.scheduleTime,
     }),
   });
 

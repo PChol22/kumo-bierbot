@@ -33,6 +33,7 @@ export const BookingEntity = new Entity({
     status: { type: 'string', required: true },
     messageId: { type: 'string', required: true },
     channel: { type: 'string', required: true },
+    scheduleTime: { type: 'string', required: true },
   },
   table: coreTable,
 });

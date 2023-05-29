@@ -26,6 +26,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.341.0",
+    "@aws-sdk/client-scheduler": "^3.341.0",
     "@aws-sdk/lib-dynamodb": "^3.341.0",
     "@bierbot/serverless-configuration": "workspace:^",
     "@middy/core": "^4.4.3",

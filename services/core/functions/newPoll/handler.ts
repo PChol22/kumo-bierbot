@@ -1,3 +1,8 @@
+import {
+  CreateScheduleCommand,
+  FlexibleTimeWindowMode,
+  SchedulerClient,
+} from '@aws-sdk/client-scheduler';
 import { getHandler } from '@swarmion/serverless-contracts';
 import Ajv from 'ajv';
 
@@ -15,12 +20,22 @@ import {
   BookingStatus,
 } from 'libs/table';
 
+import { getScheduleTime } from './getScheduleDateTime';
+
+const schedulerClient = new SchedulerClient({});
+
 const ajv = new Ajv();
 
 const handler = getHandler(newPollContract, { ajv })(async () => {
   const channelName = process.env.SLACK_CHANNEL_NAME;
+  const scheduledBookArn = process.env.SCHEDULED_BOOK_ARN;
+  const scheduledBookRoleArn = process.env.SCHEDULED_BOOK_ROLE_ARN;
 
-  if (channelName === undefined) {
+  if (
+    channelName === undefined ||
+    scheduledBookArn === undefined ||
+    scheduledBookRoleArn === undefined
+  ) {
     throw new Error('Missing environment variables');
   }
 
@@ -34,9 +49,12 @@ const handler = getHandler(newPollContract, { ajv })(async () => {
       ],
     });
 
+  const scheduleDate = new Date().toISOString().split('T')[0] ?? '';
+  const scheduleTime = getScheduleTime();
+
   const { messageId, channel } = await postMessage({
     channelName,
-    message: formatPollMessage({ guests: [] }),
+    message: formatPollMessage({ guests: [], scheduleTime }),
   });
 
   await Promise.all([
@@ -50,9 +68,24 @@ const handler = getHandler(newPollContract, { ajv })(async () => {
       messageId,
       status: BookingStatus.PENDING,
       channel,
+      scheduleTime,
     }),
     ...onGoingBookings.map(({ messageId: mId, channel: messageChannel }) =>
       deleteMessage({ channel: messageChannel, messageId: mId }),
+    ),
+    schedulerClient.send(
+      new CreateScheduleCommand({
+        Name: messageId,
+        ScheduleExpressionTimezone: 'Europe/Paris',
+        Target: {
+          Arn: scheduledBookArn,
+          RoleArn: scheduledBookRoleArn,
+        },
+        ScheduleExpression: `at(${scheduleDate}T${scheduleTime})`,
+        FlexibleTimeWindow: {
+          Mode: FlexibleTimeWindowMode.OFF,
+        },
+      }),
     ),
   ]);
 

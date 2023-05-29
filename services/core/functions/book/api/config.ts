@@ -1,26 +1,28 @@
 import { getCdkHandlerPath } from '@swarmion/serverless-helpers';
+import { Duration } from 'aws-cdk-lib';
 import { LambdaIntegration, RestApi } from 'aws-cdk-lib/aws-apigateway';
 import { Table } from 'aws-cdk-lib/aws-dynamodb';
-import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { Architecture, Runtime } from 'aws-cdk-lib/aws-lambda';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Construct } from 'constructs';
 
 import { sharedCdkEsbuildConfig } from '@bierbot/serverless-configuration';
 
-import { newPollContract } from 'contracts';
+import { bookContract } from 'contracts';
 
-type NewPollProps = {
+type ApiBookProps = {
   restApi: RestApi;
   slackSigningSecret: string;
   slackToken: string;
-  slackChannelName: string;
   table: Table;
-  scheduledBookArn: string;
-  scheduledBookRoleArn: string;
+  restaurantId: string;
+  bookingUserFirstName: string;
+  bookingUserLastName: string;
+  bookingUserPhoneNumber: string;
+  bookingUserEmail: string;
 };
 
-export class NewPoll extends Construct {
+export class ApiBook extends Construct {
   public function: NodejsFunction;
 
   constructor(
@@ -30,11 +32,13 @@ export class NewPoll extends Construct {
       restApi,
       slackSigningSecret,
       slackToken,
-      slackChannelName,
       table,
-      scheduledBookArn,
-      scheduledBookRoleArn,
-    }: NewPollProps,
+      restaurantId,
+      bookingUserFirstName,
+      bookingUserLastName,
+      bookingUserPhoneNumber,
+      bookingUserEmail,
+    }: ApiBookProps,
   ) {
     super(scope, id);
 
@@ -48,33 +52,20 @@ export class NewPoll extends Construct {
       environment: {
         SLACK_SIGNING_SECRET: slackSigningSecret,
         SLACK_TOKEN: slackToken,
-        SLACK_CHANNEL_NAME: slackChannelName,
         TABLE_NAME: table.tableName,
-        SCHEDULED_BOOK_ARN: scheduledBookArn,
-        SCHEDULED_BOOK_ROLE_ARN: scheduledBookRoleArn,
+        RESTAURANT_ID: restaurantId,
+        BOOKING_USER_FIRST_NAME: bookingUserFirstName,
+        BOOKING_USER_LAST_NAME: bookingUserLastName,
+        BOOKING_USER_PHONE_NUMBER: bookingUserPhoneNumber,
+        BOOKING_USER_EMAIL: bookingUserEmail,
       },
+      timeout: Duration.seconds(15),
     });
 
     table.grantReadWriteData(this.function);
 
-    this.function.addToRolePolicy(
-      new PolicyStatement({
-        actions: ['scheduler:CreateSchedule'],
-        resources: ['*'],
-        effect: Effect.ALLOW,
-      }),
-    );
-
-    this.function.addToRolePolicy(
-      new PolicyStatement({
-        actions: ['iam:PassRole'],
-        resources: [scheduledBookRoleArn],
-        effect: Effect.ALLOW,
-      }),
-    );
-
     restApi.root
-      .resourceForPath(newPollContract.path)
-      .addMethod(newPollContract.method, new LambdaIntegration(this.function));
+      .resourceForPath(bookContract.path)
+      .addMethod(bookContract.method, new LambdaIntegration(this.function));
   }
 }
