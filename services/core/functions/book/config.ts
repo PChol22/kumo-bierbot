@@ -1,4 +1,5 @@
 import { getCdkHandlerPath } from '@swarmion/serverless-helpers';
+import { Duration } from 'aws-cdk-lib';
 import { LambdaIntegration, RestApi } from 'aws-cdk-lib/aws-apigateway';
 import { Table } from 'aws-cdk-lib/aws-dynamodb';
 import { Architecture, Runtime } from 'aws-cdk-lib/aws-lambda';
@@ -58,6 +59,7 @@ export class Book extends Construct {
         BOOKING_USER_PHONE_NUMBER: bookingUserPhoneNumber,
         BOOKING_USER_EMAIL: bookingUserEmail,
       },
+      timeout: Duration.seconds(15),
     });
 
     table.grantReadWriteData(this.function);

@@ -2,6 +2,7 @@ import { getHandler } from '@swarmion/serverless-contracts';
 import Ajv from 'ajv';
 
 import { bookContract } from 'contracts';
+import { formatBookingMessage, formatNoSlotMessage } from 'libs/formatMessage';
 import { applySlashCommandMiddleware, updateMessage } from 'libs/slack';
 import {
   BOOKING_PK,
@@ -66,9 +67,10 @@ const handler = getHandler(bookContract, { ajv })(async () => {
       updateMessage({
         channel,
         messageId,
-        message: `Pas de réservation trouvée à ${DESIRED_SLOTS.join(
-          ', ',
-        )} pour ${acceptedUsers.length} personnes 😢`,
+        message: formatNoSlotMessage({
+          desiredSlots: DESIRED_SLOTS,
+          nbOfGuests: acceptedUsers.length,
+        }),
       }),
       BookingEntity.update({
         messageId,
@@ -99,11 +101,11 @@ const handler = getHandler(bookContract, { ajv })(async () => {
     updateMessage({
       channel,
       messageId,
-      message: `Le biergit est réservé pour ${
-        availableSlot.capacity
-      } personnes à ${availableSlot.slot}! ${acceptedUsers
-        .map(({ name }) => name)
-        .join(', ')}`,
+      message: formatBookingMessage({
+        guests: acceptedUsers.map(({ name }) => name),
+        time: availableSlot.slot,
+        capacity: availableSlot.capacity,
+      }),
     }),
     BookingEntity.update({
       messageId,

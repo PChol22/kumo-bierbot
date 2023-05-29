@@ -2,6 +2,7 @@ import { getHandler } from '@swarmion/serverless-contracts';
 import Ajv from 'ajv';
 
 import { newPollContract } from 'contracts';
+import { formatPollMessage } from 'libs/formatMessage';
 import {
   applySlashCommandMiddleware,
   deleteMessage,
@@ -35,7 +36,7 @@ const handler = getHandler(newPollContract, { ajv })(async () => {
 
   const { messageId, channel } = await postMessage({
     channelName,
-    message: 'Hello world!',
+    message: formatPollMessage({ guests: [] }),
   });
 
   await Promise.all([

@@ -3,6 +3,7 @@ import Ajv from 'ajv';
 
 import { slackEventContract } from 'contracts';
 import { PK, SK } from 'libs/constants';
+import { formatPollMessage } from 'libs/formatMessage';
 import {
   applySlackEventMiddleware,
   getUserName,
@@ -85,9 +86,9 @@ const handler = getHandler(slackEventContract, { ajv })(async ({ body }) => {
   await updateMessage({
     messageId,
     channel: matchingBooking.channel,
-    message: `Réservation prise pour : ${acceptedUsersInfo
-      .map(({ name }) => name)
-      .join(', ')}`,
+    message: formatPollMessage({
+      guests: acceptedUsersInfo.map(({ name }) => name),
+    }),
   });
 
   return Promise.resolve({ statusCode: 200, body: 'ok' });
