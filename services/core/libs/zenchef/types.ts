@@ -12,3 +12,8 @@ export type ZenChefBooking = {
   phoneNumber: string;
   email: string;
 };
+
+export type ZenChefAvailabilities = {
+  time: string;
+  size: number[];
+}[];

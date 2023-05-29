@@ -11,10 +11,26 @@ import {
   getUserPk,
   UserEntityType,
 } from 'libs/table';
+import { bookTable, getAvailabilities, getZenChefToken } from 'libs/zenchef';
+
+import { findAvailableSlot } from './findAvailableSlot';
+import { loadBookingUser } from './loadBookingUser';
+
+const DESIRED_SLOTS = ['18:30', '19:00', '18:00'];
 
 const ajv = new Ajv();
 
 const handler = getHandler(bookContract, { ajv })(async () => {
+  const restaurantId = process.env.RESTAURANT_ID;
+
+  if (restaurantId === undefined) {
+    throw new Error('Missing environment variable RESTAURANT_ID');
+  }
+
+  const bookingUser = loadBookingUser();
+
+  const date = new Date().toISOString().split('T')[0] ?? '';
+
   const { Items: [onGoingBooking] = [] } =
     await BookingEntity.query<BookingEntityType>(BOOKING_PK, {
       filters: [
@@ -34,16 +50,60 @@ const handler = getHandler(bookContract, { ajv })(async () => {
 
   const { messageId, channel } = onGoingBooking;
 
-  const { Items: acceptedUsers = [] } =
-    await BookingEntity.query<UserEntityType>(getUserPk({ messageId }));
+  const [{ Items: acceptedUsers = [] }, availabilities] = await Promise.all([
+    BookingEntity.query<UserEntityType>(getUserPk({ messageId })),
+    getAvailabilities({ restaurantId, date }),
+  ]);
+
+  const availableSlot = findAvailableSlot({
+    availabilities,
+    nbOfGuests: acceptedUsers.length,
+    desiredSlots: DESIRED_SLOTS,
+  });
+
+  if (availableSlot === undefined) {
+    await Promise.all([
+      updateMessage({
+        channel,
+        messageId,
+        message: `Pas de réservation trouvée à ${DESIRED_SLOTS.join(
+          ', ',
+        )} pour ${acceptedUsers.length} personnes 😢`,
+      }),
+      BookingEntity.update({
+        messageId,
+        status: BookingStatus.CANCELLED,
+      }),
+    ]);
+
+    return {
+      statusCode: 200,
+      body: undefined,
+    };
+  }
+
+  const zenChefToken = await getZenChefToken({ restaurantId });
+
+  await bookTable({
+    restaurantId,
+    zenChefToken,
+    booking: {
+      date,
+      time: availableSlot.slot,
+      nbGuests: availableSlot.capacity,
+      ...bookingUser,
+    },
+  });
 
   await Promise.all([
     updateMessage({
       channel,
       messageId,
       message: `Le biergit est réservé pour ${
-        acceptedUsers.length
-      } personnes! ${acceptedUsers.map(({ name }) => name).join(', ')}`,
+        availableSlot.capacity
+      } personnes à ${availableSlot.slot}! ${acceptedUsers
+        .map(({ name }) => name)
+        .join(', ')}`,
     }),
     BookingEntity.update({
       messageId,

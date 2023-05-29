@@ -14,6 +14,11 @@ type BookProps = {
   slackSigningSecret: string;
   slackToken: string;
   table: Table;
+  restaurantId: string;
+  bookingUserFirstName: string;
+  bookingUserLastName: string;
+  bookingUserPhoneNumber: string;
+  bookingUserEmail: string;
 };
 
 export class Book extends Construct {
@@ -22,7 +27,17 @@ export class Book extends Construct {
   constructor(
     scope: Construct,
     id: string,
-    { restApi, slackSigningSecret, slackToken, table }: BookProps,
+    {
+      restApi,
+      slackSigningSecret,
+      slackToken,
+      table,
+      restaurantId,
+      bookingUserFirstName,
+      bookingUserLastName,
+      bookingUserPhoneNumber,
+      bookingUserEmail,
+    }: BookProps,
   ) {
     super(scope, id);
 
@@ -37,6 +52,11 @@ export class Book extends Construct {
         SLACK_SIGNING_SECRET: slackSigningSecret,
         SLACK_TOKEN: slackToken,
         TABLE_NAME: table.tableName,
+        RESTAURANT_ID: restaurantId,
+        BOOKING_USER_FIRST_NAME: bookingUserFirstName,
+        BOOKING_USER_LAST_NAME: bookingUserLastName,
+        BOOKING_USER_PHONE_NUMBER: bookingUserPhoneNumber,
+        BOOKING_USER_EMAIL: bookingUserEmail,
       },
     });
 

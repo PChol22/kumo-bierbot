@@ -3,7 +3,7 @@ import { RestApi } from 'aws-cdk-lib/aws-apigateway';
 import { AttributeType, BillingMode, Table } from 'aws-cdk-lib/aws-dynamodb';
 import { Construct } from 'constructs';
 
-import { Book, GetZenChefToken, NewPoll, SlackEvent } from 'functions/config';
+import { Book, NewPoll, SlackEvent } from 'functions/config';
 import { PK, SK } from 'libs/constants';
 
 interface CoreProps {
@@ -12,6 +12,10 @@ interface CoreProps {
   slackToken: string;
   slackChannelName: string;
   slackSigningSecret: string;
+  bookingUserFirstName: string;
+  bookingUserLastName: string;
+  bookingUserPhoneNumber: string;
+  bookingUserEmail: string;
 }
 
 export class CoreStack extends Stack {
@@ -24,6 +28,10 @@ export class CoreStack extends Stack {
       slackSigningSecret,
       slackChannelName,
       slackToken,
+      bookingUserFirstName,
+      bookingUserLastName,
+      bookingUserPhoneNumber,
+      bookingUserEmail,
     } = props;
 
     const coreApi = new RestApi(this, 'CoreApi', {
@@ -46,11 +54,6 @@ export class CoreStack extends Stack {
       billingMode: BillingMode.PAY_PER_REQUEST,
     });
 
-    new GetZenChefToken(this, 'GetZenChefToken', {
-      restApi: coreApi,
-      restaurantId,
-    });
-
     new SlackEvent(this, 'SlackEvent', {
       restApi: coreApi,
       slackSigningSecret,
@@ -71,6 +74,11 @@ export class CoreStack extends Stack {
       slackSigningSecret,
       slackToken,
       table,
+      restaurantId,
+      bookingUserEmail,
+      bookingUserFirstName,
+      bookingUserLastName,
+      bookingUserPhoneNumber,
     });
   }
 }
