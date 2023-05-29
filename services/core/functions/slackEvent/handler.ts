@@ -12,6 +12,7 @@ import {
   BOOKING_PK,
   BookingEntity,
   BookingEntityType,
+  BookingStatus,
   getUserPk,
   UserEntity,
   UserEntityType,
@@ -48,7 +49,7 @@ const handler = getHandler(slackEventContract, { ajv })(async ({ body }) => {
       }),
     ]);
 
-  if (matchingBooking?.status !== 'PENDING') {
+  if (matchingBooking?.status !== BookingStatus.PENDING) {
     console.log('Booking is not pending');
 
     return Promise.resolve({ statusCode: 200, body: 'Booking is not pending' });

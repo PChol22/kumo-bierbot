@@ -3,7 +3,7 @@ import { RestApi } from 'aws-cdk-lib/aws-apigateway';
 import { AttributeType, BillingMode, Table } from 'aws-cdk-lib/aws-dynamodb';
 import { Construct } from 'constructs';
 
-import { GetZenChefToken, NewPoll, SlackEvent } from 'functions/config';
+import { Book, GetZenChefToken, NewPoll, SlackEvent } from 'functions/config';
 import { PK, SK } from 'libs/constants';
 
 interface CoreProps {
@@ -62,6 +62,13 @@ export class CoreStack extends Stack {
       restApi: coreApi,
       slackSigningSecret,
       slackChannelName,
+      slackToken,
+      table,
+    });
+
+    new Book(this, 'Book', {
+      restApi: coreApi,
+      slackSigningSecret,
       slackToken,
       table,
     });
