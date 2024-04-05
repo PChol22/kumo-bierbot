@@ -9,7 +9,13 @@ import {
 } from 'aws-cdk-lib/aws-iam';
 import { Construct } from 'constructs';
 
-import { ApiBook, NewPoll, ScheduledBook, SlackEvent } from 'functions/config';
+import {
+  ApiBook,
+  NewPoll,
+  ScheduledBook,
+  SlackEvent,
+  Stats,
+} from 'functions/config';
 import { PK, SK } from 'libs/constants';
 
 interface CoreProps {
@@ -109,6 +115,14 @@ export class CoreStack extends Stack {
       table,
       scheduledBookArn: scheduledBook.function.functionArn,
       scheduledBookRoleArn: invokeScheduledBookRole.roleArn,
+    });
+
+    new Stats(this, 'Stats', {
+      restApi: coreApi,
+      slackSigningSecret,
+      slackChannelName,
+      slackToken,
+      table,
     });
   }
 }
