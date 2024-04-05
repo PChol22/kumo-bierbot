@@ -51,3 +51,31 @@ export const formatNoSlotMessage = ({
   `Pas de réservation trouvée à ${desiredSlots.join(
     ', ',
   )} pour ${nbOfGuests} personnes 😢`;
+
+export const formatStatsMessage = ({
+  rankedTheodoers,
+}: {
+  rankedTheodoers: { name: string; numberOfComings: number }[];
+}): string => {
+  const header = '*🙀 Biergit Statistics 🙀*';
+  const footer = `_:peepobeer: TOP10 :peepobeer:_`;
+
+  const ranking = rankedTheodoers.map(({ name, numberOfComings }, index) => {
+    let emoji = '';
+    if (index === 0) {
+      emoji = ':first_place_medal: ';
+    } else if (index === 1) {
+      emoji = ':second_place_medal: ';
+    } else if (index === 2) {
+      emoji = ':third_place_medal: ';
+    }
+
+    return `${emoji}${name}, ${numberOfComings} fois`;
+  });
+
+  return `${header} 
+
+${footer}
+
+${ranking.join('\n')}`;
+};
