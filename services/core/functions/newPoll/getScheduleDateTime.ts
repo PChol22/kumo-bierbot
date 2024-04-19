@@ -7,7 +7,7 @@ export const getScheduleTime = (): string => {
   const [hours = '', minutes = ''] = now.split(':');
 
   if (+hours < 16) {
-    return '16:30:00';
+    return '17:15:00';
   }
 
   if (+hours >= 23) {

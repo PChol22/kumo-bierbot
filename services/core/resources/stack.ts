@@ -10,6 +10,7 @@ import {
 import { Construct } from 'constructs';
 
 import {
+  Add,
   ApiBook,
   NewPoll,
   ScheduledBook,
@@ -118,6 +119,14 @@ export class CoreStack extends Stack {
     });
 
     new Stats(this, 'Stats', {
+      restApi: coreApi,
+      slackSigningSecret,
+      slackChannelName,
+      slackToken,
+      table,
+    });
+
+    new Add(this, 'Add', {
       restApi: coreApi,
       slackSigningSecret,
       slackChannelName,
